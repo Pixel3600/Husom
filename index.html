@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rocket Bot Royale Klón</title>
+    <style>
+        body { text-align: center; }
+        canvas { background: #87CEEB; display: block; margin: auto; }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = 800;
+        canvas.height = 600;
+
+        class Tank {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.width = 40;
+                this.height = 20;
+                this.angle = 0;
+                this.speed = 3;
+            }
+
+            draw() {
+                ctx.fillStyle = "green";
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+            }
+
+            move(direction) {
+                if (direction === "left") this.x -= this.speed;
+                if (direction === "right") this.x += this.speed;
+            }
+        }
+
+        class Bullet {
+            constructor(x, y, angle) {
+                this.x = x;
+                this.y = y;
+                this.angle = angle;
+                this.speed = 5;
+            }
+
+            update() {
+                this.x += Math.cos(this.angle) * this.speed;
+                this.y += Math.sin(this.angle) * this.speed;
+            }
+
+            draw() {
+                ctx.fillStyle = "red";
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        const tank = new Tank(380, 550);
+        const bullets = [];
+
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "ArrowLeft") tank.move("left");
+            if (event.key === "ArrowRight") tank.move("right");
+            if (event.key === " ") bullets.push(new Bullet(tank.x + 20, tank.y, -Math.PI / 2));
+        });
+
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            tank.draw();
+            bullets.forEach((bullet, index) => {
+                bullet.update();
+                bullet.draw();
+                if (bullet.y < 0) bullets.splice(index, 1);
+            });
+            requestAnimationFrame(gameLoop);
+        }
+
+        gameLoop();
+    </script>
+</body>
+</html>
